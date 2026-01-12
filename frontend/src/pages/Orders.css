@@ -1,0 +1,106 @@
+.orders-page, .reservations-page, .profile-page {
+  min-height: 100vh;
+  padding: 2rem 0;
+  background-color: var(--bg-primary);
+}
+
+.orders-page h1, .reservations-page h1, .profile-page h1 {
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: 2rem;
+}
+
+.orders-list, .reservations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.order-card, .reservation-card {
+  background: white;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--bg-secondary);
+}
+
+.order-date {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.order-status, .status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.order-items {
+  margin: 1rem 0;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  color: var(--text-secondary);
+}
+
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--bg-secondary);
+}
+
+.order-total {
+  font-weight: bold;
+  color: var(--primary-color);
+  font-size: 1.25rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.reservation-form {
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  padding: 2rem;
+}
+
+.reservation-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reservation-info h3 {
+  margin-bottom: 0.5rem;
+}
+
+.reservation-info p {
+  margin: 0.25rem 0;
+  color: var(--text-secondary);
+}
+
+.status-badge.pending { background-color: #ffc107; }
+.status-badge.confirmed { background-color: #17a2b8; }
+.status-badge.cancelled { background-color: #dc3545; }
+.status-badge.completed { background-color: #28a745; }

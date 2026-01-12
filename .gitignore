@@ -1,0 +1,22 @@
+# Node
+node_modules/
+frontend/node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# React
+build/
+dist/
+
+# Environment files
+.env
+.env.local
+
+# Java / Spring Boot
+target/
+*.log
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
