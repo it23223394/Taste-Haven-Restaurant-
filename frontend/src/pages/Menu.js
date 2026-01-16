@@ -69,6 +69,22 @@ const Menu = () => {
     }
   };
 
+  const placeholderImage = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900';
+  const publicUrl = process.env.PUBLIC_URL || '';
+
+  const buildFallbackImage = (name) => {
+    if (!name) return placeholderImage;
+    const slug = name
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+    return `${publicUrl}/images/${slug}.jpg`;
+  };
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -116,43 +132,54 @@ const Menu = () => {
         </div>
 
         <div className="menu-grid">
-          {menuItems.map((item) => (
-            <div key={item.id} className="menu-card">
-              <div className="menu-card-image">
-                <img 
-                  src={item.imageUrl || 'https://via.placeholder.com/300x200?text=Food'} 
-                  alt={item.name} 
-                />
-                {!item.available && (
-                  <div className="unavailable-badge">Unavailable</div>
-                )}
-              </div>
-              
-              <div className="menu-card-content">
-                <h3>{item.name}</h3>
-                <p className="menu-card-description">{item.description}</p>
+          {menuItems.map((item) => {
+            const imageSrc = (item.imageUrl || '').trim()
+              ? item.imageUrl
+              : buildFallbackImage(item.name || item.description);
+
+            return (
+              <div key={item.id} className="menu-card">
+                <div className="menu-card-image">
+                  <img 
+                    src={imageSrc} 
+                    alt={item.name} 
+                    onError={(event) => {
+                      if (event.target.src !== placeholderImage) {
+                        event.target.src = placeholderImage;
+                      }
+                    }}
+                  />
+                  {!item.available && (
+                    <div className="unavailable-badge">Unavailable</div>
+                  )}
+                </div>
                 
-                <div className="menu-card-footer">
-                  <div className="menu-card-info">
-                    <span className="price">${item.price.toFixed(2)}</span>
-                    {item.averageRating > 0 && (
-                      <span className="rating">
-                        ⭐ {item.averageRating.toFixed(1)} ({item.totalReviews})
-                      </span>
-                    )}
-                  </div>
+                <div className="menu-card-content">
+                  <h3>{item.name}</h3>
+                  <p className="menu-card-description">{item.description}</p>
                   
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => handleAddToCart(item.id)}
-                    disabled={!item.available}
-                  >
-                    {item.available ? 'Add to Cart' : 'Unavailable'}
-                  </button>
+                  <div className="menu-card-footer">
+                    <div className="menu-card-info">
+                      <span className="price">${item.price.toFixed(2)}</span>
+                      {item.averageRating > 0 && (
+                        <span className="rating">
+                          ⭐ {item.averageRating.toFixed(1)} ({item.totalReviews})
+                        </span>
+                      )}
+                    </div>
+                    
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => handleAddToCart(item.id)}
+                      disabled={!item.available}
+                    >
+                      {item.available ? 'Add to Cart' : 'Unavailable'}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {menuItems.length === 0 && (

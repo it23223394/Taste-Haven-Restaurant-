@@ -17,6 +17,8 @@ import java.util.Set;
 @Entity
 @Table(name = "menu_items")
 @Data
+@lombok.ToString(exclude = {"reviews", "orderItems", "cartItems", "favoritedBy"})
+@lombok.EqualsAndHashCode(exclude = {"reviews", "orderItems", "cartItems", "favoritedBy"})
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)

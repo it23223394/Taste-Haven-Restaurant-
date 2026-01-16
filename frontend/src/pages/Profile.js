@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import './Profile.css';
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
@@ -30,8 +30,9 @@ const Profile = () => {
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     try {
-      await userAPI.updateProfile(profileData);
+      const response = await userAPI.updateProfile(profileData);
       toast.success('Profile updated successfully!');
+      updateUser(response.data);
     } catch (error) {
       toast.error('Failed to update profile');
     }

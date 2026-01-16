@@ -4,8 +4,8 @@
 }
 
 .menu-header {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: white;
+  background-color: var(--brand-surface);
+  color: var(--text-white);
   padding: 3rem 0;
   text-align: center;
   margin-bottom: 2rem;

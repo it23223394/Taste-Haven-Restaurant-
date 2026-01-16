@@ -67,6 +67,8 @@ export const reservationAPI = {
   getReservationById: (id) => api.get(`/reservations/${id}`),
   updateReservation: (id, data) => api.put(`/reservations/${id}`, data),
   cancelReservation: (id) => api.delete(`/reservations/${id}`),
+  getReservedTables: (dateTime) =>
+    api.get(`/reservations/availability?dateTime=${encodeURIComponent(dateTime)}`),
 };
 
 // Review API
@@ -119,6 +121,8 @@ export const adminAPI = {
   
   // User Management
   getAllUsers: () => api.get('/admin/users'),
+  updateUserRole: (userId, role) => api.put(`/admin/users/${userId}/role?role=${role}`),
+  deleteUser: (userId) => api.delete(`/admin/users/${userId}`),
 };
 
 export default api;

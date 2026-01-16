@@ -3,3 +3,107 @@
   padding: 2rem 0;
   background-color: var(--bg-primary);
 }
+
+.reservation-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.table-availability-card {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fff;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-sm);
+}
+
+.table-status-heading {
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.65rem;
+}
+
+.table-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.65rem;
+}
+
+.table-grid.disabled {
+  opacity: 0.6;
+}
+
+.table-cell {
+  border: 1px solid #e2e8f0;
+  border-radius: var(--border-radius);
+  padding: 0.6rem;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  color: #0f172a;
+  text-align: left;
+  font-family: inherit;
+  outline: none;
+}
+
+.table-cell span {
+  font-size: 0.9rem;
+}
+
+.table-cell .table-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.table-cell.available {
+  border-color: #22c55e;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.table-cell.selected {
+  border-color: #0ea5e9;
+  background: rgba(14, 165, 233, 0.15);
+}
+
+.table-cell.reserved {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+  cursor: not-allowed;
+}
+
+.table-cell:hover:not(.reserved) {
+  transform: translateY(-2px);
+}
+
+.reserved-summary {
+  margin-top: 0.65rem;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.table-legend {
+  margin-top: 0.85rem;
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+  color: #475569;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+}
+
+.legend-dot.available { background: #22c55e; }
+.legend-dot.reserved { background: #ef4444; }
+.legend-dot.selected { background: #0ea5e9; }

@@ -9,10 +9,14 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "reservations")
 @Data
+@lombok.ToString(exclude = {"user"})
+@lombok.EqualsAndHashCode(exclude = {"user"})
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
@@ -39,6 +43,11 @@ public class Reservation {
     private String specialRequests;
 
     private Integer tableNumber;
+
+    @ElementCollection
+    @CollectionTable(name = "reservation_tables", joinColumns = @JoinColumn(name = "reservation_id"))
+    @Column(name = "table_number")
+    private Set<Integer> tableNumbers = new HashSet<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

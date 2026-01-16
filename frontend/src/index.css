@@ -5,37 +5,37 @@
 }
 
 :root {
-  /* Restaurant Theme Colors - Warm & Inviting */
-  --primary-color: #d4531c;
-  --primary-dark: #a83d15;
-  --primary-light: #ff6b35;
-  --secondary-color: #8b4513;
-  --accent-color: #ffa500;
-  
-  --bg-primary: #faf8f6;
-  --bg-secondary: #fff5ee;
-  --bg-dark: #2c1810;
-  
-  --text-primary: #2c1810;
-  --text-secondary: #6b4423;
-  --text-light: #8b7355;
+  --brand-surface: #1E3A8A;
+  --primary-color: #1E3A8A;
+  --primary-dark: #111e4f;
+  --secondary-color: #FACC15;
+  --accent-color: #FEF3C7;
+
+  --bg-primary: #FEF3C7;
+  --bg-secondary: #ffffff;
+  --bg-dark: #1F2937;
+
+  --text-primary: #1F2937;
+  --text-secondary: #1E3A8A;
+  --text-light: #3B82F6;
   --text-white: #ffffff;
+  --hero-title-color: #3B82F6;
   
   --success: #28a745;
   --warning: #ffc107;
-  --danger: #dc3545;
-  --info: #17a2b8;
+  --danger: #dc2626;
+  --info: #3B82F6;
   
-  --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-  --shadow-md: 0 4px 8px rgba(0,0,0,0.12);
-  --shadow-lg: 0 8px 16px rgba(0,0,0,0.15);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 20px rgba(0, 0, 0, 0.2);
   
-  --border-radius: 8px;
-  --transition: all 0.3s ease;
+  --border-radius: 10px;
+  --transition: all 0.35s ease;
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.6;
   color: var(--text-primary);
   background-color: var(--bg-primary);

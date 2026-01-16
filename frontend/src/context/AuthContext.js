@@ -25,16 +25,20 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  const persistUserData = (persistentData) => {
+    localStorage.setItem('user', JSON.stringify(persistentData));
+    setUser(persistentData);
+  };
+
   const login = async (credentials) => {
     try {
       const response = await authAPI.login(credentials);
       const { token, ...userData } = response.data;
       
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
-      setUser(userData);
+      persistUserData(userData);
       
-      return { success: true };
+      return { success: true, user: userData };
     } catch (error) {
       return { 
         success: false, 
@@ -49,8 +53,7 @@ export const AuthProvider = ({ children }) => {
       const { token, ...user } = response.data;
       
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      setUser(user);
+      persistUserData(user);
       
       return { success: true };
     } catch (error) {
@@ -83,6 +86,7 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated,
     isAdmin,
     loading,
+    updateUser: persistUserData,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

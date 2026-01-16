@@ -69,7 +69,7 @@ const Signup = () => {
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                placeholder="John"
+                placeholder="Kasun"
               />
             </div>
 
@@ -82,7 +82,7 @@ const Signup = () => {
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                placeholder="Doe"
+                placeholder="Perera"
               />
             </div>
           </div>
@@ -96,7 +96,7 @@ const Signup = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="john.doe@example.com"
+              placeholder="kasun.perera@tastehaven.lk"
             />
           </div>
 
@@ -108,7 +108,7 @@ const Signup = () => {
               className="form-control"
               value={formData.phoneNumber}
               onChange={handleChange}
-              placeholder="(123) 456-7890"
+              placeholder="+94 77 123 4567"
             />
           </div>
 

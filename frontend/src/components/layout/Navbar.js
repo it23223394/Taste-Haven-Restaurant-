@@ -21,7 +21,10 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="container navbar-container">
         <Link to="/" className="navbar-brand">
-          🍽️ Restaurant
+          <span className="logo-image">
+            <img src="/images/icon.jpg" alt="Taste Haven" />
+          </span>
+          Taste Haven
         </Link>
 
         <button 
@@ -45,12 +48,6 @@ const Navbar = () => {
                   <span className="cart-badge">{cartItemCount}</span>
                 )}
               </Link>
-              
-              {isAdmin() && (
-                <Link to="/admin" className="nav-link admin-link">
-                  Admin Dashboard
-                </Link>
-              )}
               
               <div className="nav-dropdown">
                 <button className="nav-link dropdown-toggle">

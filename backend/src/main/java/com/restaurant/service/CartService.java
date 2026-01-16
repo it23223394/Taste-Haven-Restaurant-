@@ -1,6 +1,7 @@
 package com.restaurant.service;
 
 import com.restaurant.dto.CartItemRequest;
+import com.restaurant.dto.CartResponse;
 import com.restaurant.entity.Cart;
 import com.restaurant.entity.CartItem;
 import com.restaurant.entity.MenuItem;
@@ -38,7 +39,7 @@ public class CartService {
     }
 
     @Transactional
-    public Cart addItemToCart(String userEmail, CartItemRequest request) {
+    public CartResponse addItemToCart(String userEmail, CartItemRequest request) {
         Cart cart = getUserCart(userEmail);
         MenuItem menuItem = menuItemRepository.findById(request.getMenuItemId())
                 .orElseThrow(() -> new RuntimeException("Menu item not found"));
@@ -66,11 +67,12 @@ public class CartService {
             cart.getItems().add(cartItem);
         }
 
-        return cartRepository.save(cart);
+        Cart savedCart = cartRepository.save(cart);
+        return CartResponse.fromCart(savedCart);
     }
 
     @Transactional
-    public Cart updateCartItemQuantity(String userEmail, Long cartItemId, Integer quantity) {
+    public CartResponse updateCartItemQuantity(String userEmail, Long cartItemId, Integer quantity) {
         Cart cart = getUserCart(userEmail);
         
         CartItem cartItem = cart.getItems().stream()
@@ -84,16 +86,18 @@ public class CartService {
             cartItem.setQuantity(quantity);
         }
 
-        return cartRepository.save(cart);
+        Cart savedCart = cartRepository.save(cart);
+        return CartResponse.fromCart(savedCart);
     }
 
     @Transactional
-    public Cart removeItemFromCart(String userEmail, Long cartItemId) {
+    public CartResponse removeItemFromCart(String userEmail, Long cartItemId) {
         Cart cart = getUserCart(userEmail);
         
         cart.getItems().removeIf(item -> item.getId().equals(cartItemId));
 
-        return cartRepository.save(cart);
+        Cart savedCart = cartRepository.save(cart);
+        return CartResponse.fromCart(savedCart);
     }
 
     @Transactional

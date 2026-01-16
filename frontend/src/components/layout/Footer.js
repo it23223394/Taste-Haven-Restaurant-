@@ -22,9 +22,8 @@ const Footer = () => {
           
           <div className="footer-section">
             <h4>Contact Us</h4>
-            <p>📞 (123) 456-7890</p>
+            <p>📞 (+94) 740001191</p>
             <p>📧 info@restaurant.com</p>
-            <p>📍 123 Restaurant St, City, State</p>
           </div>
           
           <div className="footer-section">
@@ -35,7 +34,7 @@ const Footer = () => {
         </div>
         
         <div className="footer-bottom">
-          <p>&copy; 2026 Restaurant Management System. All rights reserved.</p>
+          <p>© 2025 Taste Haven. All rights reserved.</p>
         </div>
       </div>
     </footer>

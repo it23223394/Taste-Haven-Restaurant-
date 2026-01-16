@@ -5,10 +5,12 @@ import com.restaurant.entity.Reservation;
 import com.restaurant.service.ReservationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -23,6 +25,13 @@ public class ReservationController {
             Authentication authentication,
             @Valid @RequestBody ReservationRequest request) {
         return ResponseEntity.ok(reservationService.createReservation(authentication.getName(), request));
+    }
+
+    @GetMapping("/availability")
+    public ResponseEntity<List<Integer>> getReservedTables(
+            @RequestParam("dateTime")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTime) {
+        return ResponseEntity.ok(reservationService.getReservedTableNumbers(dateTime));
     }
 
     @GetMapping

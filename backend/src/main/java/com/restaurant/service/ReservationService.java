@@ -11,10 +11,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReservationService {
+
+    private static final int TOTAL_TABLES = 12;
 
     @Autowired
     private ReservationRepository reservationRepository;
@@ -30,16 +37,8 @@ public class ReservationService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Check for conflicts (basic availability check)
-        LocalDateTime startTime = request.getReservationDateTime().minusHours(1);
-        LocalDateTime endTime = request.getReservationDateTime().plusHours(1);
-        
-        List<Reservation> conflicts = reservationRepository.findConflictingReservations(startTime, endTime);
-        
-        // Simple check - if more than 10 reservations in time slot, reject
-        if (conflicts.size() >= 10) {
-            throw new RuntimeException("No tables available for the selected time. Please choose another time.");
-        }
+        List<Integer> requestedTables = sanitizeTableNumbers(request.getTableNumbers());
+        ensureTableAvailability(request.getReservationDateTime(), requestedTables, null);
 
         Reservation reservation = new Reservation();
         reservation.setUser(user);
@@ -47,19 +46,84 @@ public class ReservationService {
         reservation.setNumberOfGuests(request.getNumberOfGuests());
         reservation.setSpecialRequests(request.getSpecialRequests());
         reservation.setStatus(Reservation.ReservationStatus.PENDING);
+        reservation.setTableNumbers(new LinkedHashSet<>(requestedTables));
+        reservation.setTableNumber(requestedTables.get(0));
 
         Reservation savedReservation = reservationRepository.save(reservation);
 
-        // Send confirmation notification
+        String tableList = formatTableList(requestedTables);
+
         notificationService.createNotification(
-                user,
-                "Reservation Confirmation",
-                "Your reservation for " + request.getNumberOfGuests() + " guests on " + 
-                request.getReservationDateTime() + " has been received and is pending confirmation.",
-                Notification.NotificationType.RESERVATION_CONFIRMATION
+            user,
+            "Reservation Confirmation",
+            "Your reservation for " + request.getNumberOfGuests() + " guests on " +
+                request.getReservationDateTime() + " for tables " + tableList +
+                " has been received and is pending confirmation.",
+            Notification.NotificationType.RESERVATION_CONFIRMATION
         );
 
         return savedReservation;
+    }
+
+    public List<Integer> getReservedTableNumbers(LocalDateTime reservationDateTime) {
+        if (reservationDateTime == null) {
+            return Collections.emptyList();
+        }
+        return collectReservedTables(reservationDateTime, null);
+    }
+
+    private void ensureTableAvailability(LocalDateTime reservationDateTime, List<Integer> requestedTables, Long ignoreReservationId) {
+        if (reservationDateTime == null || requestedTables == null || requestedTables.isEmpty()) {
+            throw new RuntimeException("Reservation date, time, and table selection are required");
+        }
+
+        List<Integer> reservedTables = collectReservedTables(reservationDateTime, ignoreReservationId);
+
+        LinkedHashSet<Integer> conflicts = requestedTables.stream()
+                .filter(reservedTables::contains)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        if (!conflicts.isEmpty()) {
+            throw new RuntimeException("Table(s) " + formatTableList(conflicts) +
+                    " are already booked for that slot. Please choose other tables.");
+        }
+
+        int available = TOTAL_TABLES - reservedTables.size();
+        if (available <= 0) {
+            throw new RuntimeException("No tables available for the selected time. Please choose another slot.");
+        }
+
+        if (requestedTables.size() > available) {
+            throw new RuntimeException("Only " + available + " tables remain available for that slot.");
+        }
+    }
+
+    private List<Integer> collectReservedTables(LocalDateTime reservationDateTime, Long ignoreReservationId) {
+        if (reservationDateTime == null) {
+            return Collections.emptyList();
+        }
+        LocalDateTime startTime = reservationDateTime.minusHours(1);
+        LocalDateTime endTime = reservationDateTime.plusHours(1);
+
+        List<Reservation> conflicts = reservationRepository.findConflictingReservations(startTime, endTime);
+        if (conflicts.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        LinkedHashSet<Integer> reservedTables = new LinkedHashSet<>();
+        for (Reservation reservation : conflicts) {
+            if (ignoreReservationId != null && reservation.getId() != null && reservation.getId().equals(ignoreReservationId)) {
+                continue;
+            }
+            if (reservation.getTableNumber() != null) {
+                reservedTables.add(reservation.getTableNumber());
+            }
+            if (reservation.getTableNumbers() != null) {
+                reservedTables.addAll(reservation.getTableNumbers());
+            }
+        }
+
+        return new ArrayList<>(reservedTables);
     }
 
     public List<Reservation> getUserReservations(String userEmail) {
@@ -80,10 +144,14 @@ public class ReservationService {
     @Transactional
     public Reservation updateReservation(Long id, ReservationRequest request) {
         Reservation reservation = getReservationById(id);
-        
+        List<Integer> requestedTables = sanitizeTableNumbers(request.getTableNumbers());
+        ensureTableAvailability(request.getReservationDateTime(), requestedTables, id);
+
         reservation.setReservationDateTime(request.getReservationDateTime());
         reservation.setNumberOfGuests(request.getNumberOfGuests());
         reservation.setSpecialRequests(request.getSpecialRequests());
+        reservation.setTableNumbers(new LinkedHashSet<>(requestedTables));
+        reservation.setTableNumber(requestedTables.get(0));
 
         return reservationRepository.save(reservation);
     }
@@ -95,10 +163,9 @@ public class ReservationService {
         reservation.setStatus(newStatus);
 
         Reservation updatedReservation = reservationRepository.save(reservation);
-
-        // Send notification
-        String message = "Your reservation for " + reservation.getReservationDateTime() + 
-                        " is now " + newStatus.name().toLowerCase();
+        String tableList = formatTableList(reservation.getTableNumbers());
+        String message = "Your reservation for " + reservation.getReservationDateTime() +
+                " for tables " + tableList + " is now " + newStatus.name().toLowerCase() + ".";
         
         notificationService.createNotification(
                 reservation.getUser(),
@@ -116,11 +183,43 @@ public class ReservationService {
         reservation.setStatus(Reservation.ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
 
+        String tableList = formatTableList(reservation.getTableNumbers());
+
         notificationService.createNotification(
-                reservation.getUser(),
-                "Reservation Cancelled",
-                "Your reservation for " + reservation.getReservationDateTime() + " has been cancelled.",
-                Notification.NotificationType.RESERVATION_CONFIRMATION
+            reservation.getUser(),
+            "Reservation Cancelled",
+            "Your reservation for " + reservation.getReservationDateTime() + " for tables " + tableList + " has been cancelled.",
+            Notification.NotificationType.RESERVATION_CONFIRMATION
         );
+    }
+
+    private List<Integer> sanitizeTableNumbers(List<Integer> tableNumbers) {
+        if (tableNumbers == null || tableNumbers.isEmpty()) {
+            throw new RuntimeException("Select at least one table");
+        }
+
+        LinkedHashSet<Integer> cleaned = new LinkedHashSet<>();
+        for (Integer table : tableNumbers) {
+            if (table == null) {
+                continue;
+            }
+            if (table < 1 || table > TOTAL_TABLES) {
+                throw new RuntimeException("Table numbers must be between 1 and " + TOTAL_TABLES);
+            }
+            if (!cleaned.add(table)) {
+                throw new RuntimeException("Table " + table + " has been selected more than once.");
+            }
+        }
+
+        return new ArrayList<>(cleaned);
+    }
+
+    private String formatTableList(Collection<Integer> tables) {
+        if (tables == null || tables.isEmpty()) {
+            return "N/A";
+        }
+        return tables.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(", "));
     }
 }

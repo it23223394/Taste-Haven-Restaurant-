@@ -27,6 +27,11 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
     @Transactional
     public User updateUserProfile(String email, User updatedUser) {
         User user = getUserByEmail(email);
@@ -60,5 +65,18 @@ public class UserService {
         if (notifyPromotions != null) user.setNotifyPromotions(notifyPromotions);
         
         userRepository.save(user);
+    }
+
+    @Transactional
+    public User updateUserRole(Long userId, String role) {
+        User user = getUserById(userId);
+        user.setRole(User.Role.valueOf(role));
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = getUserById(userId);
+        userRepository.delete(user);
     }
 }

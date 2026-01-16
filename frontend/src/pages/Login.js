@@ -10,7 +10,7 @@ const Login = () => {
     password: '',
   });
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -28,7 +28,8 @@ const Login = () => {
     
     if (result.success) {
       toast.success('Login successful!');
-      navigate('/');
+      const redirectPath = result.user?.role === 'ADMIN' ? '/admin' : '/';
+      navigate(redirectPath);
     } else {
       toast.error(result.message);
     }

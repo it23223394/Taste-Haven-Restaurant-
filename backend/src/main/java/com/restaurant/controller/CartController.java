@@ -1,6 +1,7 @@
 package com.restaurant.controller;
 
 import com.restaurant.dto.CartItemRequest;
+import com.restaurant.dto.CartResponse;
 import com.restaurant.entity.Cart;
 import com.restaurant.service.CartService;
 import jakarta.validation.Valid;
@@ -19,31 +20,35 @@ public class CartController {
     private CartService cartService;
 
     @GetMapping
-    public ResponseEntity<Cart> getUserCart(Authentication authentication) {
-        return ResponseEntity.ok(cartService.getUserCart(authentication.getName()));
+    public ResponseEntity<CartResponse> getUserCart(Authentication authentication) {
+        Cart cart = cartService.getUserCart(authentication.getName());
+        return ResponseEntity.ok(CartResponse.fromCart(cart));
     }
 
     @PostMapping("/items")
-    public ResponseEntity<Cart> addItemToCart(
+    public ResponseEntity<CartResponse> addItemToCart(
             Authentication authentication,
             @Valid @RequestBody CartItemRequest request) {
-        return ResponseEntity.ok(cartService.addItemToCart(authentication.getName(), request));
+        CartResponse cart = cartService.addItemToCart(authentication.getName(), request);
+        return ResponseEntity.ok(cart);
     }
 
     @PutMapping("/items/{cartItemId}")
-    public ResponseEntity<Cart> updateCartItemQuantity(
+    public ResponseEntity<CartResponse> updateCartItemQuantity(
             Authentication authentication,
             @PathVariable Long cartItemId,
             @RequestParam Integer quantity) {
-        return ResponseEntity.ok(cartService.updateCartItemQuantity(
-                authentication.getName(), cartItemId, quantity));
+        CartResponse cart = cartService.updateCartItemQuantity(
+                authentication.getName(), cartItemId, quantity);
+        return ResponseEntity.ok(cart);
     }
 
     @DeleteMapping("/items/{cartItemId}")
-    public ResponseEntity<Cart> removeItemFromCart(
+    public ResponseEntity<CartResponse> removeItemFromCart(
             Authentication authentication,
             @PathVariable Long cartItemId) {
-        return ResponseEntity.ok(cartService.removeItemFromCart(authentication.getName(), cartItemId));
+        CartResponse cart = cartService.removeItemFromCart(authentication.getName(), cartItemId);
+        return ResponseEntity.ok(cart);
     }
 
     @DeleteMapping("/clear")
