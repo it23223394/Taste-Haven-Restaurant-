@@ -78,6 +78,10 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Cart cart;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<PaymentCard> paymentCards = new HashSet<>();
+
     @ManyToMany
     @JoinTable(
         name = "user_favorites",

@@ -1,9 +1,11 @@
 package com.restaurant.service;
 
 import com.restaurant.dto.OrderRequest;
+import com.restaurant.dto.OrderResponse;
 import com.restaurant.entity.*;
 import com.restaurant.repository.CartRepository;
 import com.restaurant.repository.OrderRepository;
+import com.restaurant.repository.PaymentCardRepository;
 import com.restaurant.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -26,10 +29,13 @@ public class OrderService {
     private CartRepository cartRepository;
 
     @Autowired
+    private PaymentCardRepository paymentCardRepository;
+
+    @Autowired
     private NotificationService notificationService;
 
     @Transactional
-    public Order createOrder(String userEmail, OrderRequest request) {
+    public OrderResponse createOrder(String userEmail, OrderRequest request) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         
@@ -40,8 +46,20 @@ public class OrderService {
             throw new RuntimeException("Cart is empty");
         }
 
+        // Validate payment card if provided
+        PaymentCard paymentCard = null;
+        if (request.getPaymentCardId() != null) {
+            paymentCard = paymentCardRepository.findByIdAndUser(request.getPaymentCardId(), user)
+                    .orElseThrow(() -> new RuntimeException("Payment card not found or does not belong to user"));
+            
+            if (!paymentCard.getIsActive()) {
+                throw new RuntimeException("Payment card is not active");
+            }
+        }
+
         Order order = new Order();
         order.setUser(user);
+        order.setPaymentCard(paymentCard);
         order.setType(Order.OrderType.valueOf(request.getOrderType().toUpperCase()));
         order.setDeliveryAddress(request.getDeliveryAddress());
         order.setSpecialInstructions(request.getSpecialInstructions());
@@ -75,27 +93,33 @@ public class OrderService {
                 Notification.NotificationType.ORDER_UPDATE
         );
 
-        return savedOrder;
+        return OrderResponse.fromEntity(savedOrder);
     }
 
-    public List<Order> getUserOrders(String userEmail) {
+    public List<OrderResponse> getUserOrders(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return orderRepository.findByUserOrderByOrderedAtDesc(user);
+        return orderRepository.findByUserOrderByOrderedAtDesc(user).stream()
+                .map(OrderResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
-    public Order getOrderById(Long orderId) {
-        return orderRepository.findById(orderId)
+    public OrderResponse getOrderById(Long orderId) {
+        Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+        return OrderResponse.fromEntity(order);
     }
 
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+    public List<OrderResponse> getAllOrders() {
+        return orderRepository.findAll().stream()
+                .map(OrderResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public Order updateOrderStatus(Long orderId, String status) {
-        Order order = getOrderById(orderId);
+    public OrderResponse updateOrderStatus(Long orderId, String status) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
         Order.OrderStatus newStatus = Order.OrderStatus.valueOf(status.toUpperCase());
         order.setStatus(newStatus);
         Order updatedOrder = orderRepository.save(order);
@@ -113,11 +137,13 @@ public class OrderService {
                 Notification.NotificationType.ORDER_UPDATE
         );
 
-        return updatedOrder;
+        return OrderResponse.fromEntity(updatedOrder);
     }
 
-    public List<Order> getOrdersByStatus(String status) {
+    public List<OrderResponse> getOrdersByStatus(String status) {
         Order.OrderStatus orderStatus = Order.OrderStatus.valueOf(status.toUpperCase());
-        return orderRepository.findByStatus(orderStatus);
+        return orderRepository.findByStatus(orderStatus).stream()
+                .map(OrderResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 }

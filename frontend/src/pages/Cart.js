@@ -1,13 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { orderAPI } from '../services/api';
 import { toast } from 'react-toastify';
+import PaymentSelectionModal from '../components/PaymentSelectionModal';
 import './Cart.css';
 
 const Cart = () => {
   const { cart, cartTotal, loading, updateQuantity, removeItem, fetchCart } = useCart();
   const navigate = useNavigate();
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     fetchCart();
@@ -19,7 +22,34 @@ const Cart = () => {
       return;
     }
 
-    navigate('/checkout');
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentSelect = async (paymentCardId) => {
+    try {
+      setIsProcessing(true);
+      
+      const orderData = {
+        orderType: 'DINE_IN', // Default to dine-in, can be extended for user selection
+        paymentCardId: paymentCardId,
+        deliveryAddress: null,
+        specialInstructions: null
+      };
+
+      const response = await orderAPI.placeOrder(orderData);
+      
+      if (response.status === 200 || response.status === 201) {
+        toast.success('Order placed successfully!');
+        setShowPaymentModal(false);
+        // Navigate to orders page or order details
+        navigate(`/orders/${response.data.id}`);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to place order');
+      console.error('Order placement error:', error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleQuantityChange = async (itemId, newQuantity) => {
@@ -122,13 +152,15 @@ const Cart = () => {
               <button 
                 onClick={handleCheckout}
                 className="btn btn-primary btn-block"
+                disabled={isProcessing}
               >
-                Proceed to Checkout
+                {isProcessing ? 'Processing...' : 'Pay & Place Order'}
               </button>
 
               <button 
                 onClick={() => navigate('/menu')}
                 className="btn btn-outline btn-block"
+                disabled={isProcessing}
               >
                 Continue Shopping
               </button>
@@ -146,6 +178,14 @@ const Cart = () => {
             </button>
           </div>
         )}
+
+        <PaymentSelectionModal 
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          onPaymentSelect={handlePaymentSelect}
+          totalAmount={cartTotal * 1.1}
+          isProcessing={isProcessing}
+        />
       </div>
     </div>
   );

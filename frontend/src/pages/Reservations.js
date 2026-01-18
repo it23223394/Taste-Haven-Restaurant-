@@ -238,7 +238,7 @@ const Reservations = () => {
           {reservations.map((reservation) => (
             <div key={reservation.id} className="reservation-card">
               <div className="reservation-info">
-                <h3>Reservation #{reservation.id}</h3>
+                <h3>Reservation Details</h3>
                 <p>📅 {new Date(reservation.reservationDateTime).toLocaleString()}</p>
                 <p>👥 {reservation.numberOfGuests} guests</p>
                 {reservation.specialRequests && (

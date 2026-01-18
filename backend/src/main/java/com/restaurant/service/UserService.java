@@ -68,6 +68,29 @@ public class UserService {
     }
 
     @Transactional
+    public User createUser(User user) {
+        // Check if email already exists
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+        
+        // Encode password
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        
+        // Set default role if not specified
+        if (user.getRole() == null) {
+            user.setRole(User.Role.CUSTOMER);
+        }
+        
+        // Set default notification preferences
+        if (user.getNotifyOrders() == null) user.setNotifyOrders(true);
+        if (user.getNotifyReservations() == null) user.setNotifyReservations(true);
+        if (user.getNotifyPromotions() == null) user.setNotifyPromotions(false);
+        
+        return userRepository.save(user);
+    }
+
+    @Transactional
     public User updateUserRole(Long userId, String role) {
         User user = getUserById(userId);
         user.setRole(User.Role.valueOf(role));

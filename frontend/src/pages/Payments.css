@@ -1,0 +1,108 @@
+.payments-page {
+  min-height: 100vh;
+  padding: 3rem 0;
+  background: linear-gradient(180deg, var(--accent-color), #fff 65%);
+}
+
+.payments-card {
+  max-width: 940px;
+  margin: 0 auto;
+  padding: 2.5rem;
+  background: #ffffff;
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(30, 58, 138, 0.15);
+}
+
+.payments-card h1 {
+  margin-bottom: 0.25rem;
+  color: var(--brand-surface);
+}
+
+.payments-subtitle {
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+}
+
+.payments-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.payments-form label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+}
+
+.payments-form select,
+.payments-form textarea,
+.payments-form input {
+  width: 100%;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(30, 58, 138, 0.25);
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  resize: vertical;
+  background: var(--bg-primary);
+}
+
+.divider {
+  height: 1px;
+  background: #eee;
+  margin: 1.75rem 0;
+}
+
+.summary-block {
+  background: var(--bg-secondary);
+  padding: 1rem 1.25rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(30, 58, 138, 0.1);
+}
+
+.summary-block h2 {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  color: var(--primary-color);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.summary-row.total {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--primary-color);
+}
+
+.item-meta {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+.payments-page .btn-primary {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 0.9rem;
+  font-size: 1rem;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .payments-card {
+    padding: 2rem;
+  }
+
+  .summary-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+}

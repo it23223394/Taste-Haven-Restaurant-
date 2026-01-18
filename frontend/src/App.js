@@ -23,6 +23,7 @@ import AdminOrders from './pages/admin/AdminOrders';
 import AdminReservations from './pages/admin/AdminReservations';
 import AdminMenuManagement from './pages/admin/AdminMenuManagement';
 import AdminUsers from './pages/admin/AdminUsers';
+import Payments from './pages/Payments';
 import PrivateRoute from './components/auth/PrivateRoute';
 import AdminRoute from './components/auth/AdminRoute';
 
@@ -57,6 +58,14 @@ const AppRoutes = () => {
             element={
               <PrivateRoute>
                 <Cart />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/payments"
+            element={
+              <PrivateRoute>
+                <Payments />
               </PrivateRoute>
             }
           />

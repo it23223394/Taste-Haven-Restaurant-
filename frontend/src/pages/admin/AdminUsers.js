@@ -3,8 +3,16 @@ import { adminAPI } from '../../services/api';
 import { toast } from 'react-toastify';
 
 const AdminUsers = () => {
+  const initialNewUser = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    phoneNumber: '',
+  };
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [newUser, setNewUser] = useState(initialNewUser);
 
   useEffect(() => {
     fetchUsers();
@@ -27,17 +35,6 @@ const AdminUsers = () => {
     }
   };
 
-  const handleRoleToggle = async (userId, currentRole) => {
-    const nextRole = currentRole === 'ADMIN' ? 'CUSTOMER' : 'ADMIN';
-    try {
-      await adminAPI.updateUserRole(userId, nextRole);
-      toast.success('User role updated');
-      fetchUsers();
-    } catch (error) {
-      toast.error('Role update failed');
-    }
-  };
-
   const handleUserDelete = async (userId) => {
     if (!window.confirm('Remove this user permanently?')) return;
     try {
@@ -46,6 +43,26 @@ const AdminUsers = () => {
       fetchUsers();
     } catch (error) {
       toast.error('Unable to delete user');
+    }
+  };
+
+  const handleNewUserChange = (event) => {
+    const { name, value } = event.target;
+    setNewUser((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleNewUserSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await adminAPI.createUser(newUser);
+      toast.success('New user created');
+      setNewUser(initialNewUser);
+      fetchUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Unable to add user');
     }
   };
 
@@ -63,6 +80,52 @@ const AdminUsers = () => {
         <h2>User Management</h2>
         <p>Control who has admin access and remove stale accounts.</p>
       </div>
+      <form className="admin-user-form" onSubmit={handleNewUserSubmit}>
+        <h3>Add a new user</h3>
+        <div className="form-grid">
+          <input
+            name="firstName"
+            placeholder="First name"
+            value={newUser.firstName}
+            onChange={handleNewUserChange}
+            required
+          />
+          <input
+            name="lastName"
+            placeholder="Last name"
+            value={newUser.lastName}
+            onChange={handleNewUserChange}
+            required
+          />
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={newUser.email}
+            onChange={handleNewUserChange}
+            required
+          />
+          <input
+            name="password"
+            type="password"
+            placeholder="Password (min 6 chars)"
+            value={newUser.password}
+            onChange={handleNewUserChange}
+            required
+          />
+          <input
+            name="phoneNumber"
+            placeholder="Phone (optional)"
+            value={newUser.phoneNumber}
+            onChange={handleNewUserChange}
+          />
+        </div>
+        <div className="form-actions">
+          <button type="submit" className="btn btn-primary">
+            Add user
+          </button>
+        </div>
+      </form>
       <div className="admin-table">
         <table>
           <thead>
@@ -80,12 +143,6 @@ const AdminUsers = () => {
                 <td>{user.email}</td>
                 <td>{user.role}</td>
                 <td className="action-buttons">
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => handleRoleToggle(user.id, user.role)}
-                  >
-                    {user.role === 'ADMIN' ? 'Demote to Customer' : 'Promote to Admin'}
-                  </button>
                   <button className="btn btn-outline" onClick={() => handleUserDelete(user.id)}>
                     Delete
                   </button>

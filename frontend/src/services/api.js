@@ -56,6 +56,7 @@ export const cartAPI = {
 // Order API
 export const orderAPI = {
   createOrder: (orderData) => api.post('/orders', orderData),
+  placeOrder: (orderData) => api.post('/orders', orderData),
   getUserOrders: () => api.get('/orders'),
   getOrderById: (orderId) => api.get(`/orders/${orderId}`),
 };
@@ -96,6 +97,13 @@ export const userAPI = {
     api.put(`/user/password?currentPassword=${currentPassword}&newPassword=${newPassword}`),
   updateNotificationPreferences: (preferences) => 
     api.put('/user/notifications/preferences', null, { params: preferences }),
+  
+  // Payment Cards
+  getPaymentCards: () => api.get('/user/payment-cards'),
+  addPaymentCard: (cardData) => api.post('/user/payment-cards', cardData),
+  updatePaymentCard: (cardId, cardData) => api.put(`/user/payment-cards/${cardId}`, cardData),
+  deletePaymentCard: (cardId) => api.delete(`/user/payment-cards/${cardId}`),
+  getDefaultPaymentCard: () => api.get('/user/payment-cards/default'),
 };
 
 // Admin API
@@ -121,6 +129,7 @@ export const adminAPI = {
   
   // User Management
   getAllUsers: () => api.get('/admin/users'),
+  createUser: (user) => api.post('/admin/users', user),
   updateUserRole: (userId, role) => api.put(`/admin/users/${userId}/role?role=${role}`),
   deleteUser: (userId) => api.delete(`/admin/users/${userId}`),
 };

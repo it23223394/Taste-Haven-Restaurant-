@@ -1,5 +1,8 @@
 package com.restaurant.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +22,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Order {
 
     @Id
@@ -28,6 +32,10 @@ public class Order {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_card_id")
+    private PaymentCard paymentCard;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
@@ -53,9 +61,11 @@ public class Order {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<OrderItem> orderItems = new HashSet<>();
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    @JsonBackReference
     private OrderFeedback feedback;
 
     public enum OrderStatus {

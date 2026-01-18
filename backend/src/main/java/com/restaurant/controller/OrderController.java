@@ -1,7 +1,7 @@
 package com.restaurant.controller;
 
 import com.restaurant.dto.OrderRequest;
-import com.restaurant.entity.Order;
+import com.restaurant.dto.OrderResponse;
 import com.restaurant.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,19 +19,19 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<Order> createOrder(
+    public ResponseEntity<OrderResponse> createOrder(
             Authentication authentication,
             @Valid @RequestBody OrderRequest request) {
         return ResponseEntity.ok(orderService.createOrder(authentication.getName(), request));
     }
 
     @GetMapping
-    public ResponseEntity<List<Order>> getUserOrders(Authentication authentication) {
+    public ResponseEntity<List<OrderResponse>> getUserOrders(Authentication authentication) {
         return ResponseEntity.ok(orderService.getUserOrders(authentication.getName()));
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long orderId) {
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long orderId) {
         return ResponseEntity.ok(orderService.getOrderById(orderId));
     }
 }

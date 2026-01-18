@@ -29,16 +29,34 @@ const AdminMenuManagement = () => {
   const [menuForm, setMenuForm] = useState(initialMenuForm);
   const [editingMenuId, setEditingMenuId] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [imageProcessing, setImageProcessing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     loadMenuItems();
   }, []);
 
+  const buildSearchResults = (items, query) => {
+    if (!query) {
+      return [];
+    }
+    const normalized = query.toLowerCase();
+    return items.filter((item) => {
+      const searchable = `${item.name || ''} ${item.description || ''} ${item.category || ''}`.toLowerCase();
+      return searchable.includes(normalized);
+    });
+  };
+
   const loadMenuItems = async () => {
     setLoading(true);
     try {
       const response = await adminAPI.getAllMenuItems();
-      setMenuItems(Array.isArray(response.data) ? response.data : []);
+      const items = Array.isArray(response.data) ? response.data : [];
+      setMenuItems(items);
+      if (searchTerm.trim()) {
+        setSearchResults(buildSearchResults(items, searchTerm.trim()));
+      }
     } catch (error) {
       toast.error('Failed to load menu items');
     } finally {
@@ -52,6 +70,26 @@ const AdminMenuManagement = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+  };
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setImageProcessing(true);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setMenuForm((prev) => ({
+        ...prev,
+        imageUrl: reader.result || '',
+      }));
+      setImageProcessing(false);
+    };
+    reader.onerror = () => {
+      toast.error('Unable to read the selected image');
+      setImageProcessing(false);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
   };
 
   const handleMenuSubmit = async (e) => {
@@ -107,6 +145,23 @@ const AdminMenuManagement = () => {
     }
   };
 
+  const handleSearch = () => {
+    const trimmed = searchTerm.trim();
+    if (!trimmed) {
+      toast.info('Enter a search term to filter the menu');
+      return;
+    }
+
+    setSearchResults(buildSearchResults(menuItems, trimmed));
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setSearchResults([]);
+  };
+
+  const displayMenuItems = searchTerm.trim() ? searchResults : menuItems;
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -159,9 +214,17 @@ const AdminMenuManagement = () => {
             value={menuForm.imageUrl}
             onChange={handleMenuInputChange}
           />
+          <label className="file-field">
+            <span>Upload an image from your device</span>
+            <div className="file-field__trigger">
+              <span>Choose file</span>
+              <input type="file" accept="image/*" onChange={handleImageUpload} />
+            </div>
+          </label>
           <small className="image-help">
             Drop your asset under <code>public/images</code> and reference it via <code>/images/your-dish.jpg</code> (e.g. <code>/images/kottu.jpg</code>) so each card can show a unique photo.
           </small>
+          {imageProcessing && <small className="image-help">Encoding the selected file...</small>}
           {menuForm.imageUrl && (
             <div className="image-preview">
               <img
@@ -210,6 +273,34 @@ const AdminMenuManagement = () => {
         </div>
       </form>
 
+      <div className="admin-search-bar">
+        <input
+          type="text"
+          placeholder="Search menu items by name or description"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+        />
+        <div className="admin-search-actions">
+          <button type="button" className="btn btn-secondary" onClick={handleSearch}>
+            Search Menu
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={handleClearSearch}
+            disabled={!searchTerm.trim() && searchResults.length === 0}
+          >
+            Clear
+          </button>
+        </div>
+        {searchTerm.trim() && (
+          <p className="search-status">
+            Showing {displayMenuItems.length} result{displayMenuItems.length === 1 ? '' : 's'} for "{searchTerm}"
+          </p>
+        )}
+      </div>
+
       <div className="admin-table">
         <table>
           <thead>
@@ -222,7 +313,8 @@ const AdminMenuManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {menuItems.map((menu) => (
+            {displayMenuItems.length > 0 ? (
+              displayMenuItems.map((menu) => (
               <tr key={`menu-${menu.id}`}>
                 <td>{menu.name}</td>
                 <td>${(menu.price || 0).toFixed(2)}</td>
@@ -237,7 +329,16 @@ const AdminMenuManagement = () => {
                   </button>
                 </td>
               </tr>
-            ))}
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} className="text-center" style={{ padding: '2rem 0' }}>
+                  {searchTerm.trim()
+                    ? 'No menu items match that search. Try another keyword.'
+                    : 'No menu items found.'}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

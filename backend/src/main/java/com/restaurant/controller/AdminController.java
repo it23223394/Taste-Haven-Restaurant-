@@ -1,8 +1,9 @@
 package com.restaurant.controller;
 
 import com.restaurant.dto.MenuItemRequest;
+import com.restaurant.dto.OrderResponse;
+import com.restaurant.dto.ReservationAdminDTO;
 import com.restaurant.entity.MenuItem;
-import com.restaurant.entity.Order;
 import com.restaurant.entity.Reservation;
 import com.restaurant.entity.User;
 import com.restaurant.service.MenuService;
@@ -73,17 +74,17 @@ public class AdminController {
 
     // Order Management
     @GetMapping("/orders")
-    public ResponseEntity<List<Order>> getAllOrders() {
+    public ResponseEntity<List<OrderResponse>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
     @GetMapping("/orders/status/{status}")
-    public ResponseEntity<List<Order>> getOrdersByStatus(@PathVariable String status) {
+    public ResponseEntity<List<OrderResponse>> getOrdersByStatus(@PathVariable String status) {
         return ResponseEntity.ok(orderService.getOrdersByStatus(status));
     }
 
     @PutMapping("/orders/{orderId}/status")
-    public ResponseEntity<Order> updateOrderStatus(
+    public ResponseEntity<OrderResponse> updateOrderStatus(
             @PathVariable Long orderId,
             @RequestParam String status) {
         return ResponseEntity.ok(orderService.updateOrderStatus(orderId, status));
@@ -91,21 +92,26 @@ public class AdminController {
 
     // Reservation Management
     @GetMapping("/reservations")
-    public ResponseEntity<List<Reservation>> getAllReservations() {
-        return ResponseEntity.ok(reservationService.getAllReservations());
+    public ResponseEntity<List<ReservationAdminDTO>> getAllReservations() {
+        return ResponseEntity.ok(reservationService.getAllReservationsForAdmin());
     }
 
     @PutMapping("/reservations/{id}/status")
-    public ResponseEntity<Reservation> updateReservationStatus(
+    public ResponseEntity<ReservationAdminDTO> updateReservationStatus(
             @PathVariable Long id,
             @RequestParam String status) {
-        return ResponseEntity.ok(reservationService.updateReservationStatus(id, status));
+        return ResponseEntity.ok(reservationService.updateReservationStatusForAdmin(id, status));
     }
 
     // User Management
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        return ResponseEntity.ok(userService.createUser(user));
     }
 
     @PutMapping("/users/{id}/role")

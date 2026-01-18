@@ -15,4 +15,5 @@ public class OrderRequest {
     
     private String deliveryAddress;
     private String specialInstructions;
+    private Long paymentCardId;
 }

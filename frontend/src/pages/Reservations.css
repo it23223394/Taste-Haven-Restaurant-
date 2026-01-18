@@ -4,6 +4,38 @@
   background-color: var(--bg-primary);
 }
 
+.reservations-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.reservations-page .page-header h1 {
+  margin: 0;
+  flex: 1;
+}
+
+.reservations-page .page-header .btn {
+  min-width: 160px;
+  max-width: 200px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.page-header button {
+  white-space: nowrap;
+}
+
 .reservation-form .form-group {
   margin-bottom: 1rem;
 }

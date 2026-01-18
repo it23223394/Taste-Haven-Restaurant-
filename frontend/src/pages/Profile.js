@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { userAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import PaymentMethods from '../components/PaymentMethods';
 import './Profile.css';
 
 const Profile = () => {
@@ -147,6 +148,8 @@ const Profile = () => {
             </form>
           </div>
         </div>
+
+        <PaymentMethods />
       </div>
     </div>
   );

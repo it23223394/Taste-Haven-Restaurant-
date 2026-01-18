@@ -1,6 +1,7 @@
 package com.restaurant.service;
 
 import com.restaurant.dto.ReservationRequest;
+import com.restaurant.dto.ReservationAdminDTO;
 import com.restaurant.entity.Notification;
 import com.restaurant.entity.Reservation;
 import com.restaurant.entity.User;
@@ -141,6 +142,30 @@ public class ReservationService {
         return reservationRepository.findAll();
     }
 
+    public List<ReservationAdminDTO> getAllReservationsForAdmin() {
+        List<Reservation> reservations = reservationRepository.findAll();
+        return reservations.stream()
+                .map(this::convertToAdminDTO)
+                .collect(Collectors.toList());
+    }
+
+    private ReservationAdminDTO convertToAdminDTO(Reservation reservation) {
+        User user = reservation.getUser();
+        return ReservationAdminDTO.builder()
+                .id(reservation.getId())
+                .customerName(user != null ? user.getFirstName() + " " + user.getLastName() : "N/A")
+                .customerEmail(user != null ? user.getEmail() : "N/A")
+                .customerPhone(user != null ? user.getPhoneNumber() : "N/A")
+                .partySize(reservation.getNumberOfGuests())
+                .reservationDateTime(reservation.getReservationDateTime())
+                .status(reservation.getStatus().name())
+                .specialRequests(reservation.getSpecialRequests())
+                .tableNumber(reservation.getTableNumber())
+                .createdAt(reservation.getCreatedAt())
+                .updatedAt(reservation.getUpdatedAt())
+                .build();
+    }
+
     @Transactional
     public Reservation updateReservation(Long id, ReservationRequest request) {
         Reservation reservation = getReservationById(id);
@@ -175,6 +200,11 @@ public class ReservationService {
         );
 
         return updatedReservation;
+    }
+
+    public ReservationAdminDTO updateReservationStatusForAdmin(Long id, String status) {
+        Reservation reservation = updateReservationStatus(id, status);
+        return convertToAdminDTO(reservation);
     }
 
     @Transactional
